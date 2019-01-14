@@ -7,7 +7,13 @@ const mongoose =require('mongoose');
 require('dotenv').config();
 
 mongoose.Promise=global.Promise;
-mongoose.connect(process.env.DATABASE)
+mongoose.connect(process.env.DATABASE,(err=>{
+    if(err){
+        console.log("mongodb connection failed!!!!")
+    }else{
+        console.log("mongodb connected success")
+    }
+}))
 
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
@@ -178,6 +184,21 @@ User.findOne({'email':req.body.email},(err,user)=>{
 
 })
 })
+
+
+app.get('/api/users/logout',auth,(req,res)=>{
+    User.findOneAndUpdate(
+        {_id:req.user._id},
+        {token:''},
+        (err,doc)=>{
+           if(err) return res.json({success:false,err});
+           return res.status(200).send({
+               success:true
+           })
+        }
+    )
+})
+
 const port=process.env.PORT||3002;
 
 
